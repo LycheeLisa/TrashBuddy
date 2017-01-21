@@ -1,0 +1,10 @@
+public static double colorDistance(MyColor color1, MyColor color2) {
+	    double rmean = ( color1.getRed() + color2.getRed() )/2;
+	    int r = color1.getRed() - color2.getRed();
+	    int g = color1.getGreen() - color2.getGreen();
+	    int b = color1.getBlue() - color2.getBlue();
+	    double weightR = 2 + rmean/256;
+	    double weightG = 4.0;
+	    double weightB = 2 + (255-rmean)/256;
+	    return Math.sqrt(weightR*r*r + weightG*g*g + weightB*b*b);
+}
