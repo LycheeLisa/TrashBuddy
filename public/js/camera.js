@@ -1,7 +1,15 @@
 var previousFrame = null;
 var currentFrame = null;
+var detectedChangeInterval = -1;
+var socket = io();
+
+var TOLERANCE = 270;
+var FPS = 500;
+var HOLDOUTTIME = 2000;
 
 
+				
+				
 var video = document.querySelector("#videoElement");
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
 
@@ -38,7 +46,7 @@ function handleVideo(stream) {
 	
 	setInterval(function() {
 		show_video();
-	}, 500);
+	}, FPS);
 }
 
 function videoError(e) {
@@ -73,17 +81,28 @@ function draw(back, v, bc, w, h) {
 		var deltaImage = compare(previousFrame, currentFrame, w, h);
 		
 		outputBoxcontext.clearRect(0, 0, w, h);
-		if (deltaImage) {
-			outputBoxcontext.beginPath(); 
-			outputBoxcontext.strokeStyle="red";
-			outputBoxcontext.rect(deltaImage.min_x,deltaImage.min_y,deltaImage.max_x-deltaImage.min_x,deltaImage.max_y-deltaImage.min_y);
-			outputBoxcontext.stroke(); 
-			outputBoxcontext.closePath();
-		}
 		
 		if (deltaImage) {
-			previousFrame = currentFrame.slice(0);
-			// send deltaImage to server
+			console.log(deltaImage);
+			
+			clearTimeout(detectedChangeInterval);
+			jQuery(".cameraLoading > div").stop().css('width','0%').animate({width: '100%'}, HOLDOUTTIME);
+			
+			detectedChangeInterval = setTimeout(function() {
+				previousFrame = currentFrame.slice(0);
+				jQuery(".cameraLoading > div").stop().css('width','0%');
+				
+				outputBoxcontext.beginPath(); 
+				outputBoxcontext.strokeStyle="red";
+				outputBoxcontext.rect(deltaImage.min_x,deltaImage.min_y,deltaImage.max_x-deltaImage.min_x,deltaImage.max_y-deltaImage.min_y);
+				outputBoxcontext.stroke(); 
+				outputBoxcontext.closePath();
+				
+				// send deltaImage to server
+				socket.emit('image', {
+					'image' : back.toDataURL()
+				});
+			}, HOLDOUTTIME);
 		}
 	} else {
 		previousFrame = imgData;
@@ -117,7 +136,7 @@ function compare(data1, data2, w, h) {
 			'getAlpha' : data2Arr[i+3]
 		});
 		
-		if (distance > 270) {
+		if (distance > TOLERANCE) {
 			min_x = min_x > x ? x : min_x;
 			max_x = max_x < x ? x : max_x;
 			min_y = min_y > y ? y : min_y;

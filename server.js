@@ -7,6 +7,7 @@ var app = express();
 var fs = require("fs");
 var https = require("https");
 var db = require('./db.json');
+var uuid = require('uuid');
 
 var Cclient = new Clarifai({
     id: 'vHoj4XdPkGsG1ThB_pvn9QrbldygqdJLGiK2d3Xq',
@@ -59,4 +60,27 @@ httpsServer.listen(process.env.PORT || 3000, function () {
     var host = httpsServer.address().address;
     var port = httpsServer.address().port;
     console.log('TrashBuddy started at https://%s:%s', host, port);
+});
+
+
+var io = require('socket.io').listen(httpsServer);
+io.on('connection', function(socket){
+	console.log("User connected...");
+	
+	socket.on('image', function(dataX) {
+		var image = dataX.image;
+		var base64Data = image.replace(/^data:image\/png;base64,/, "");
+		var filename = "out_" + uuid.v4() + ".png";
+		fs.writeFile("captures/" + filename, base64Data, 'base64', function(err) {
+			if (err) {
+				console.log(err);
+			} else {
+				console.log("Saved file " + filename);
+			}
+		});
+	});
+	
+	socket.on('disconnect', function() {
+		console.log("User left...");
+	});
 });
