@@ -1,11 +1,17 @@
 /**
  * Created by chenji13 on 1/21/2017.
  */
+var Clarifai = require('clarifai');
 var express = require('express');
 var app = express();
 var fs = require("fs");
 var https = require("https");
 var db = require('./db.json');
+
+var Cclient = new Clarifai({
+    id: 'vHoj4XdPkGsG1ThB_pvn9QrbldygqdJLGiK2d3Xq',
+    secret: 'Cg6MqLWNyRQJNNcOHgBmrniToJFqBNooNGdkWko3'
+});
 
 // set up public folder routing
 app.use(express.static(__dirname + '/public'));
