@@ -9,10 +9,10 @@ var https = require("https");
 var db = require('./db.json');
 var uuid = require('uuid');
 
-var Cclient = new Clarifai({
-    id: 'vHoj4XdPkGsG1ThB_pvn9QrbldygqdJLGiK2d3Xq',
-    secret: 'Cg6MqLWNyRQJNNcOHgBmrniToJFqBNooNGdkWko3'
-});
+var Cclient = new Clarifai.App(
+    'vHoj4XdPkGsG1ThB_pvn9QrbldygqdJLGiK2d3Xq',
+    'Cg6MqLWNyRQJNNcOHgBmrniToJFqBNooNGdkWko3'
+);
 
 // set up public folder routing
 app.use(express.static(__dirname + '/public'));
@@ -77,15 +77,18 @@ io.on('connection', function(socket){
 				console.log(err);
 			} else {
 				console.log("Saved file " + filename);
-                fs.readFile(destinationFile, function(err, data) {
-                    Cclient.tagFromBuffers('image', data, function(err, results) {
-                        if (err) {
-                            return console.log('ERROR', err);
-                        }
-                        console.log(results);
-                        // success(results);
-                    });
-                });
+                //fs.readFile(destinationFile, function(err, data) {
+                    Cclient.models.predict(Clarifai.GENERAL_MODEL, {'base64':base64Data}).then(
+						function(response) {
+						  // do something with response
+						  console.log(JSON.stringify(response));
+						},
+						function(err) {
+						  // there was an error
+						  console.log(err);
+						}
+					);
+                //});
 			}
 		});
 	});

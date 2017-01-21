@@ -3,7 +3,7 @@ var currentFrame = null;
 var detectedChangeInterval = -1;
 var socket = io();
 
-var TOLERANCE = 270;
+var TOLERANCE = 700;
 var FPS = 500;
 var HOLDOUTTIME = 2000;
 
