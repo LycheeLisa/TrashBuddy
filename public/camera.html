@@ -50,9 +50,9 @@ canvas {
 
 <script>
 
+alert(1);
 
-
-
+/*
 var previousFrame = null;
 var currentFrame = null;
 
@@ -95,7 +95,7 @@ function videoError(e) {
 	alert(e.message + " " + e.constraint + " " + e.name);
 }
 
-
+*/
 
 
 
@@ -107,9 +107,9 @@ function show_video() {
 	var backcontext = back.getContext('2d');
 	var cw = back.width;
 	var ch = back.height;
-	draw(back, video, backcontext, cw, ch);
+	//draw(back, video, backcontext, cw, ch);
 }
-
+/*
 function draw(back, v, bc, w, h) {
 
 	// First, draw it into the backing canvas
@@ -121,22 +121,13 @@ function draw(back, v, bc, w, h) {
 	// enumerate all pixels
 	// each pixel's r,g,b,a datum are stored in separate sequential array elements
 	
-	for(var i=0; i<data.length; i+=4) {
-	  var red = data[i];
-	  var green = data[i+1];
-	  var blue = data[i+2];
-	  var alpha = data[i+3];
-	}
-		
-	
-	
-	
+	alert(1);
 	if (previousFrame==null) {
 		previousFrame = data;
 	} else {
 	
-		current = data;
-		var deltaImage = compare(previousFrame, currentFrame);
+		currentFrame = data;
+		var deltaImage = compare(previousFrame, currentFrame, w, h);
 		if (deltaImage) {
 			previousFrame = currentFrame;
 			// send deltaImage to server
@@ -145,8 +136,21 @@ function draw(back, v, bc, w, h) {
 }
 
 
+function compare(data1, data2, w, h) {
+	for(var i=0; i<data.length; i+=4) {
+	
+		var x = (i / 4) % w;
+		var y = Math.floor((i / 4) / w);
+		alert(x + ", " + y)
+	
+		var red = data[i];
+		var green = data[i+1];
+		var blue = data[i+2];
+		var alpha = data[i+3];
+	}
+}
 
-
+*/
 
 
 
