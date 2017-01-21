@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/0.2.0/Chart.min.js" type="text/javascript"></script>-->
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Trash Buddy</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <script src="js/custom.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <script src="js/Chart.bundle.js"></script>
+    <script src="js/Chart.js"></script>
+    <script src="js/custom.js"></script>
+    <!-- CSS-->
+    <link rel="stylesheet" href="custom.css">
+    <link href="https://fonts.googleapis.com/css?family=Cabin" rel="stylesheet">
+</head>
+<body>
+<h1 class="header">SmartCan</h1>
+<!-- Main Div-->
+<div class="container maindiv">
+    <div class="row">
+        <div id="monthly" class="col-md-4"><h4 class="bottompad">Breakdown of Waste</h4>
+            <script src="js/Chart.bundle.js"></script>
+            <script src="js/Chart.js"></script>
+            <script src="js/database.js"></script>
+            <ul class="nav nav-tabs bottompadsmall">
+                <li class="daily1 active"><a href="#">Daily</a></li>
+                <li><a class="weekly1" href="#">Weekly</a></li>
+                <li><a class="monthly1" href="#">Monthly</a></li>
+            </ul>
+            <script>
+                $(window).load(function(){
+                    $.ajax({
+                        url: "/api/daily", success: function (result) {
+                            turnIntoGraph(result)
+                        }
+                    });
+                });
+                $(".daily1").click(function () {
+                    $.ajax({
+                        url: "/api/daily", success: function (result) {
+                            turnIntoGraph(result)
+                        }
+                    });
+                });
+                $(".monthly1").click(function () {
+                    $.ajax({
+                        url: "/api/monthly", success: function (result){
+                            turnIntoGraph(result)
+                        }
+                    });
+                });
+                $(".weekly1").click(function () {
+                    $.ajax({
+                        url: "/api/weekly", success: function (result) {
+                            turnIntoGraph(result)
+                        }
+                    });
+                });
+            </script>
+            <canvas id="wasteBreakdown" width="400" height="400" class="toppad"></canvas>
+            <script>
+                $(".daily1").click(function () {
+                    $.ajax({
+                        url: "/api/daily", success: function (result) {
+                            turnIntoGraph(result)
+                        }
+                    });
+                });
+            </script>
+        </div>
+        <div class="col-md-4"><h4 class="bottompad">Amount Wasted</h4>
+            <ul class="nav nav-tabs bottompadsmall">
+                <li class="active"><a href="#">Daily</a></li>
+                <li><a class="weekly" href="#">Weekly</a></li>
+                <li><a class="monthly" href="#">Monthly</a></li>
+            </ul>
+            <script>
+                $(".weekly").click(function () {
+                    alert("Handler for weekly called.");
+                });
+                $(".monthly").click(function () {
+                    alert("Handler for monthly called.");
+                });
+            </script>
+            <canvas id="amountWasted" width="400" height="400"></canvas>
+            <script>
+
+                var ctxA = document.getElementById("amountWasted");
+                var amountWasted = new Chart(ctxA, {
+                    type: 'line',
+                    data: {
+                        datasets: [{
+                            pointBorderColor: "#33691E",
+                            borderColor: "#33691E",
+                            fill: false,
+                            label: 'Dollars',
+                            data: [{
+                                x: 0,
+                                y: 2
+                            }, {
+                                x: 2,
+                                y: 5
+                            }, {
+                                x: 4,
+                                y: 6
+                            }, {
+                                x: 6,
+                                y: 10
+                            }, {
+                                x: 8,
+                                y: 15
+                            }, {
+                                x: 10,
+                                y: 15
+                            }
+                            ]
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            xAxes: [{
+                                type: 'linear',
+                                position: 'bottom'
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                xAxes: [{
+                                    display: true
+                                }]
+                            }
+                        }
+                    }
+                });
+            </script>
+        </div>
+        <div class="col-md-4"><h4 class="bottompad">Insights and Recommendations</h4>
+            <p>- The item you threw out most today was bananas (4 bananas)</p>
+            <p>- The item you threw out least today was bread (1 bread)</p>
+            <p>- If every day was like today, you will waste $40.68 in a month</p>
+        </div>
+    </div>
+</div>
+
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="js/bootstrap.min.js"></script>
+</body>
+</html>

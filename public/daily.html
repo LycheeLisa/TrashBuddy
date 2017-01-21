@@ -1,0 +1,95 @@
+<h1 class="header">SmartCan</h1>
+<!-- Main Div-->
+<div class="container maindiv">
+    <div class="row">
+        <div class="col-md-4"><h4 class="bottompad">Breakdown of Waste</h4>
+            <script src="js/Chart.bundle.js"></script>
+            <script src="js/Chart.js"></script>
+            <canvas id="wasteBreakdown" width="400" height="400" class="toppad"></canvas>
+            <script>
+                var ctx = document.getElementById("wasteBreakdown");
+                var wasteBreakdown = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: ["Grains", "Vegetables", "Fruits", "Protein", "Dairy", "Other"],
+                        datasets: [{
+                            label: '# of Votes',
+                            data: [12, 19, 3, 5, 2, 3],
+                            backgroundColor: [
+                                '#CDDC39',
+                                '#8BC34A',
+                                '#FFC107',
+                                '#F44336',
+                                '#2196F3',
+                                '#9E9E9E'
+                            ]
+//                            borderColor: [
+//                                'rgba(255,99,132,1)',
+//                                'rgba(54, 162, 235, 1)',
+//                                'rgba(255, 206, 86, 1)',
+//                                'rgba(75, 192, 192, 1)',
+//                                'rgba(153, 102, 255, 1)',
+//                                'rgba(255, 159, 64, 1)'
+//                            ],
+//                            borderWidth: 1
+                        }]
+
+                    }
+                });
+            </script>
+        </div>
+        <div class="col-md-4"><h4 class="bottompad">Amount Wasted</h4>
+            <canvas id="amountWasted" width="400" height="400"></canvas>
+            <script>
+                var ctxA = document.getElementById("amountWasted");
+                var amountWasted = new Chart(ctxA, {
+                    type: 'line',
+                    data: {
+                        datasets: [{
+                            pointBorderColor: "#33691E",
+                            borderColor: "#33691E",
+                            fill: false,
+                            label: 'Dollars',
+                            data: [{
+                                x: -10,
+                                y: 0
+                            }, {
+                                x: 0,
+                                y: 10
+                            }, {
+                                x: 10,
+                                y: 5
+                            }]
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            xAxes: [{
+                                type: 'linear',
+                                position: 'bottom'
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                xAxes: [{
+                                    display: true
+                                }]
+                            }
+                        }
+                    }
+                });
+            </script>
+        </div>
+        <div class="col-md-4"><h4 class="bottompad">Insights and Recommendations</h4>
+            <p>- The item you threw out most today was bananas (4 bananas)</p>
+            <p>- The item you threw out least today was bread (1 bread)</p>
+            <p>- If every day was like today, you will waste $40.68 in a month</p>
+        </div>
+    </div>
+</div>
+
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="js/bootstrap.min.js"></script>

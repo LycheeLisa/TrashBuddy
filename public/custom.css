@@ -1,0 +1,19 @@
+h1.header {
+    text-align: center;
+    font-family: 'Cabin', sans-serif;
+    color: #33691E;
+    padding-bottom: 5vh;
+}
+.bottompadsmall{
+    padding-bottom: 15px;
+}
+.maindiv{
+    height: 80vh;
+}
+canvas#myChart{
+    width: 250px;
+    height: 250px;
+}
+.bottompad{
+    padding-bottom: 30px;
+}
