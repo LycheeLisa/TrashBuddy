@@ -1,4 +1,3 @@
-
 import android.graphics.Bitmap;
 import java.util.concurrent.TimeUnit;
 import java.net.URLConnection;

@@ -35,10 +35,11 @@ import android.widget.Toast;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class CameraActivity extends AppCompatActivity {
-
 
     // logging
     private static final String TAG = "AndroidCameraApi";
@@ -66,8 +67,10 @@ public class CameraActivity extends AppCompatActivity {
     // threads
     private Handler mBackgroundHandler;
     private HandlerThread mBackgroundThread;
-
-
+    // frames
+    private boolean scanning = true;
+    private Bitmap previousFrame = null;
+    private Bitmap currentFrame = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +81,7 @@ public class CameraActivity extends AppCompatActivity {
         textureView = (TextureView) findViewById(R.id.texture);
         textureView.setSurfaceTextureListener(textureListener);
 
+        /*
         // set click event on button to take a picture
         takePictureButton = (Button) findViewById(R.id.btn_takepicture);
         takePictureButton.setOnClickListener(new View.OnClickListener() {
@@ -86,7 +90,65 @@ public class CameraActivity extends AppCompatActivity {
                 takePicture();
             }
         });
+        */
+
+        setUpTimer();
     }
+
+
+
+
+
+
+    private void setUpTimer() {
+        while (scanning) {
+            try {
+                TimeUnit.SECONDS.sleep(3);
+                takePicture();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                System.out.println("Interrupted while waiting");
+            }
+        }
+    }
+
+    private void gotImage(Bitmap bitmap) {
+        if (previousFrame != null) {
+            currentFrame = bitmap;
+            Bitmap deltaImage = Comparator.compare(previousFrame, currentFrame);
+
+            if (deltaImage) {
+                previousFrame = currentFrame;
+            }
+        } else {
+            previousFrame = bitmap;
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     TextureView.SurfaceTextureListener textureListener = new TextureView.SurfaceTextureListener() {
         @Override
@@ -202,9 +264,9 @@ public class CameraActivity extends AppCompatActivity {
                         byte[] bytes = new byte[buffer.capacity()];
                         buffer.get(bytes);
 
-
                         Bitmap bitmapImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
 
+                        gotImage(bitmapImage);
                     } finally {
                         if (image != null) {
                             image.close();
@@ -376,5 +438,12 @@ public class CameraActivity extends AppCompatActivity {
         //closeCamera();
         stopBackgroundThread();
         super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.e(TAG, "onDestroy");
+        scanning = false;
+        super.onDestroy();
     }
 }
