@@ -5,7 +5,7 @@ var socket = io();
 
 var TOLERANCE = 270;
 var FPS = 500;
-var HOLDOUTTIME = 2000;
+var HOLDOUTTIME = 4000;
 
 
 				
@@ -84,13 +84,14 @@ function draw(back, v, bc, w, h) {
 		
 		if (deltaImage) {
 			//console.log(deltaImage);
+			previousFrame = currentFrame.slice(0);
 			
-			//clearTimeout(detectedChangeInterval);
-			//jQuery(".cameraLoading > div").stop().css('width','0%').animate({width: '100%'}, HOLDOUTTIME);
+			clearTimeout(detectedChangeInterval);
+			jQuery(".cameraLoading > div").stop().css('width','0%').animate({width: '100%'}, HOLDOUTTIME);
 			
-			//detectedChangeInterval = setTimeout(function() {
-				previousFrame = currentFrame.slice(0);
-				//jQuery(".cameraLoading > div").stop().css('width','0%');
+			detectedChangeInterval = setTimeout(function() {
+				
+				jQuery(".cameraLoading > div").stop().css('width','0%');
 				
 				outputBoxcontext.beginPath(); 
 				outputBoxcontext.strokeStyle="red";
@@ -102,7 +103,7 @@ function draw(back, v, bc, w, h) {
 				//socket.emit('image', {
 				//	'image' : back.toDataURL()
 				//});
-			//}, HOLDOUTTIME);
+			}, HOLDOUTTIME);
 		}
 	} else {
 		previousFrame = imgData;
