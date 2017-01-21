@@ -3,10 +3,20 @@
  */
 var express = require('express');
 var app = express();
+var fs = require("fs");
+var https = require("https");
 var db = require('./db.json');
+
+// set up public folder routing
 app.use(express.static(__dirname + '/public'));
+
+// set up routing
 app.get('/', function (req, res ) {
     res.sendFile(__dirname + '/public/index.html');
+    // res.sendFile(__dirname + '/public/js/custom.js');
+});
+app.get('/camera', function (req, res ) {
+    res.sendFile(__dirname + '/public/camera.html');
     // res.sendFile(__dirname + '/public/js/custom.js');
 });
 app.get('/api/daily', function(req, res){
@@ -33,9 +43,14 @@ app.get('/api/monthly', function(req, res){
     };
     res.send(JSON.stringify(newDatabse));
 });
-var server = app.listen(process.env.PORT || 3000, function () {
-    var host = server.address().address;
-    var port = server.address().port;
 
-    console.log('SmartCan started at http://%s:%s', host, port);
+var privateKey  = fs.readFileSync('sslcert/key.pem', 'utf8');
+var certificate = fs.readFileSync('sslcert/cert.pem', 'utf8');
+var credentials = {key: privateKey, cert: certificate};
+
+var httpsServer = https.createServer(credentials, app);
+httpsServer.listen(process.env.PORT || 3000, function () {
+    var host = httpsServer.address().address;
+    var port = httpsServer.address().port;
+    console.log('TrashBuddy started at https://%s:%s', host, port);
 });
