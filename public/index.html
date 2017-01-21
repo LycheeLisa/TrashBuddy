@@ -36,7 +36,7 @@
                 <li><a class="monthly1" href="#">Monthly</a></li>
             </ul>
             <script>
-                $(window).load(function(){
+                $(window).load(function () {
                     $.ajax({
                         url: "/api/daily", success: function (result) {
                             turnIntoGraph(result)
@@ -52,7 +52,7 @@
                 });
                 $(".monthly1").click(function () {
                     $.ajax({
-                        url: "/api/monthly", success: function (result){
+                        url: "/api/monthly", success: function (result) {
                             turnIntoGraph(result)
                         }
                     });
@@ -78,21 +78,152 @@
         </div>
         <div class="col-md-4"><h4 class="bottompad">Amount Wasted</h4>
             <ul class="nav nav-tabs bottompadsmall">
-                <li class="active"><a href="#">Daily</a></li>
+                <li class="active daily"><a href="#">Daily</a></li>
                 <li><a class="weekly" href="#">Weekly</a></li>
                 <li><a class="monthly" href="#">Monthly</a></li>
             </ul>
             <script>
                 $(".weekly").click(function () {
-                    alert("Handler for weekly called.");
+                    if (window.lineGraph != null){
+                        window.lineGraph.destroy();
+                    }
+                    var ctxA = document.getElementById("amountWasted");
+                    window.lineGraph = new Chart(ctxA, {
+                        type: 'line',
+                        data: {
+                            datasets: [{
+                                pointBorderColor: "#33691E",
+                                borderColor: "#33691E",
+                                fill: false,
+                                label: 'Dollars',
+                                data: [{
+                                    x: 0,
+                                    y: 5
+                                }, {
+                                    x: 2,
+                                    y: 6
+                                }, {
+                                    x: 4,
+                                    y: 6
+                                }, {
+                                    x: 6,
+                                    y: 7
+                                }, {
+                                    x: 8,
+                                    y: 8.50
+                                }, {
+                                    x: 10,
+                                    y: 10
+                                }
+                                ]
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                xAxes: [{
+                                    type: 'linear',
+                                    position: 'bottom',
+                                    display: true
+                                }]
+                            }
+                        }
+                    });
                 });
                 $(".monthly").click(function () {
-                    alert("Handler for monthly called.");
+                    if (window.lineGraph != null){
+                        window.lineGraph.destroy();
+                    }
+                    var ctxA = document.getElementById("amountWasted");
+                    window.lineGraph = new Chart(ctxA, {
+                        type: 'line',
+                        data: {
+                            datasets: [{
+                                pointBorderColor: "#33691E",
+                                borderColor: "#33691E",
+                                fill: false,
+                                label: 'Dollars',
+                                data: [{
+                                    x: 0,
+                                    y: 10
+                                }, {
+                                    x: 2,
+                                    y: 25
+                                }, {
+                                    x: 4,
+                                    y: 30
+                                }, {
+                                    x: 6,
+                                    y: 37
+                                }, {
+                                    x: 8,
+                                    y: 45
+                                }, {
+                                    x: 10,
+                                    y: 50
+                                }
+                                ]
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                xAxes: [{
+                                    type: 'linear',
+                                    position: 'bottom',
+                                    display: true
+                                }]
+                            }
+                        }
+                    });
                 });
+                $(".daily").click(function () {
+                    if (window.lineGraph != null){
+                        window.lineGraph.destroy();
+                    }
+                    var ctxA = document.getElementById("amountWasted");
+                    window.lineGraph = new Chart(ctxA, {
+                        type: 'line',
+                        data: {
+                            datasets: [{
+                                pointBorderColor: "#33691E",
+                                borderColor: "#33691E",
+                                fill: false,
+                                label: 'Dollars',
+                                data: [{
+                                    x: 0,
+                                    y: 0.50
+                                }, {
+                                    x: 2,
+                                    y: 1
+                                }, {
+                                    x: 4,
+                                    y: 2
+                                }, {
+                                    x: 6,
+                                    y: 3.50
+                                }, {
+                                    x: 8,
+                                    y: 4
+                                }, {
+                                    x: 10,
+                                    y: 4.25
+                                }
+                                ]
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                xAxes: [{
+                                    type: 'linear',
+                                    position: 'bottom',
+                                    display: true
+                                }]
+                            }
+                        }
+                    });
+                })
             </script>
             <canvas id="amountWasted" width="400" height="400"></canvas>
             <script>
-
                 var ctxA = document.getElementById("amountWasted");
                 var amountWasted = new Chart(ctxA, {
                     type: 'line',
@@ -104,22 +235,22 @@
                             label: 'Dollars',
                             data: [{
                                 x: 0,
-                                y: 2
+                                y: 0.50
                             }, {
                                 x: 2,
-                                y: 5
+                                y: 1
                             }, {
                                 x: 4,
-                                y: 6
+                                y: 2
                             }, {
                                 x: 6,
-                                y: 10
+                                y: 3.50
                             }, {
                                 x: 8,
-                                y: 15
+                                y: 4
                             }, {
                                 x: 10,
-                                y: 15
+                                y: 4.25
                             }
                             ]
                         }]
@@ -128,24 +259,21 @@
                         scales: {
                             xAxes: [{
                                 type: 'linear',
-                                position: 'bottom'
+                                position: 'bottom',
+                                display: true
                             }]
-                        },
-                        options: {
-                            scales: {
-                                xAxes: [{
-                                    display: true
-                                }]
-                            }
                         }
                     }
                 });
             </script>
         </div>
         <div class="col-md-4"><h4 class="bottompad">Insights and Recommendations</h4>
-            <p>- The item you threw out most today was bananas (4 bananas)</p>
-            <p>- The item you threw out least today was bread (1 bread)</p>
-            <p>- If every day was like today, you will waste $40.68 in a month</p>
+            <p>- The item you threw out the most this month was bananas (4 bananas)</p>
+            <p>- The item you threw out the least this month was bread (1 loaf)</p>
+            <p>- This month you wasted a total of $50.45 in uneaten groceries</p>
+            <br>
+            <p>SmartCan noticed that the category you threw out the most was fruits, with 45% of your total waste in this category. We
+            recommend you purchase less bananas or switch to frozen fruit.
         </div>
     </div>
 </div>

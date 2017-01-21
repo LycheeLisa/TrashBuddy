@@ -28,8 +28,11 @@ function turnIntoGraph(result) {
                     other += 1;
                 }
             }
+            if (window.pieChart != null){
+                window.pieChart.destroy();
+            }
             var ctx = document.getElementById("wasteBreakdown");
-            var wasteBreakdown = new Chart(ctx, {
+            window.pieChart = new Chart(ctx, {
                 type: 'pie',
                 data: {
                     labels: ["Grains", "Vegetables", "Fruits", "Protein", "Dairy", "Other"],
