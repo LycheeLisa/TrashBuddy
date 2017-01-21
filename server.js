@@ -71,11 +71,21 @@ io.on('connection', function(socket){
 		var image = dataX.image;
 		var base64Data = image.replace(/^data:image\/png;base64,/, "");
 		var filename = "out_" + uuid.v4() + ".png";
-		fs.writeFile("captures/" + filename, base64Data, 'base64', function(err) {
+        var destinationFile = "captures/" + filename;
+		fs.writeFile(destinationFile, base64Data, 'base64', function(err) {
 			if (err) {
 				console.log(err);
 			} else {
 				console.log("Saved file " + filename);
+                fs.readFile(destinationFile, function(err, data) {
+                    Cclient.tagFromBuffers('image', data, function(err, results) {
+                        if (err) {
+                            return console.log('ERROR', err);
+                        }
+                        console.log(results);
+                        // success(results);
+                    });
+                });
 			}
 		});
 	});
