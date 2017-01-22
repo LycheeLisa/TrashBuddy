@@ -105,15 +105,14 @@ function draw(back, v, bc, w, h) {
 			if (!isWorking) {
 				
 				isWorking = true;
-				firstFrame = firstFrame==null ? previousFrame.slice(0) : null;
 				
 				jQuery(".cameraLoading > div").stop().css('width','0%').animate({width: '100%'}, HOLDOUTTIME);
 				detectedChangeInterval = setTimeout(function() {
 					isWorking = false;
 					jQuery(".cameraLoading > div").stop().css('width','0%');
-					var deltaImage = compare(firstFrame, currentFrame, w, h);
-
-					firstFrame = null;
+					
+					var deltaImage = compare(firstFrame || previousFrame, currentFrame, w, h);
+					firstFrame = currentFrame.slice(0);
 					
 					if (deltaImage != null) {
 						var deltaWidth = deltaImage.max_x-deltaImage.min_x;
