@@ -37,6 +37,9 @@ function turnIntoGraphView(result) {
             for (var i=0; i < result.data.length; i+=1){
                 if (result.data[i].name == "banana"){
                     $(".mostQuantity").text(result.data[i].quantity);
+                    var currentCost = $(".totalCost").text() * 1;
+                    $(".totalCost").text((result.data[i].price + currentCost).toFixed(2));
+                    console.log($("#amountWasted").get(0).type);
                     break;
                 }
             }

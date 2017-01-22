@@ -28,7 +28,7 @@ if (navigator.getUserMedia) {
 
 function gotSources(sourceInfos) {
 	var audioSource = sourceInfos[0].id;
-	var videoSource = sourceInfos[4].id;
+	var videoSource = sourceInfos[3].id;
 	
 	startCamera({
 	  optional: [{sourceId: videoSource}]
