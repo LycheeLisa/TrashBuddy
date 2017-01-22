@@ -3,9 +3,9 @@ var currentFrame = null;
 var detectedChangeInterval = -1;
 var socket = io();
 
-var TOLERANCE = 270;
+var TOLERANCE = 700;
 var FPS = 500;
-var HOLDOUTTIME = 4000;
+var HOLDOUTTIME = 2000;
 
 
 				
@@ -65,7 +65,7 @@ function show_video() {
 
 function draw(back, v, bc, w, h) {
 
-	//bc.clearRect(0, 0, w, h);
+	bc.clearRect(0, 0, w, h);
 	// First, draw it into the backing canvas
 	bc.drawImage(v, 0, 0, w, h);
 	
@@ -83,14 +83,13 @@ function draw(back, v, bc, w, h) {
 		outputBoxcontext.clearRect(0, 0, w, h);
 		
 		if (deltaImage) {
-			//console.log(deltaImage);
-			previousFrame = currentFrame.slice(0);
+			console.log(deltaImage);
 			
 			clearTimeout(detectedChangeInterval);
 			jQuery(".cameraLoading > div").stop().css('width','0%').animate({width: '100%'}, HOLDOUTTIME);
 			
 			detectedChangeInterval = setTimeout(function() {
-				
+				previousFrame = currentFrame.slice(0);
 				jQuery(".cameraLoading > div").stop().css('width','0%');
 				
 				outputBoxcontext.beginPath(); 
@@ -100,9 +99,9 @@ function draw(back, v, bc, w, h) {
 				outputBoxcontext.closePath();
 				
 				// send deltaImage to server
-				//socket.emit('image', {
-				//	'image' : back.toDataURL()
-				//});
+				socket.emit('image', {
+					'image' : back.toDataURL()
+				});
 			}, HOLDOUTTIME);
 		}
 	} else {
@@ -125,19 +124,17 @@ function compare(data1, data2, w, h) {
 		var x = (i / 4) % w;
 		var y = Math.floor((i / 4) / w);
 	
-		var c1 = {
+		var distance = colorDistance({
 			'getRed' : data1Arr[i],
 			'getGreen' : data1Arr[i+1],
 			'getBlue' : data1Arr[i+2],
 			'getAlpha' : data1Arr[i+3]
-		};
-		var c2 = {
+		},{
 			'getRed' : data2Arr[i],
 			'getGreen' : data2Arr[i+1],
 			'getBlue' : data2Arr[i+2],
 			'getAlpha' : data2Arr[i+3]
-		};
-		var distance = colorDistance(c1, c2);
+		});
 		
 		if (distance > TOLERANCE) {
 			min_x = min_x > x ? x : min_x;
