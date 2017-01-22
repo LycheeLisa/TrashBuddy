@@ -5,16 +5,18 @@ var isWorking = false;
 var detectedChangeInterval = -1;
 var socket = io();
 
-
 var TOLERANCE = 200;
 var FPS = 500;
 var HOLDOUTTIME = 6000;
 
+
+				
+				
 var video = document.querySelector("#videoElement");
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
 
 video.onloadedmetadata = function() {
-};
+}
 
 if (navigator.getUserMedia) {   
 	if (MediaStreamTrack.getSources) {
@@ -65,7 +67,7 @@ function show_video() {
 
 function draw(back, v, bc, w, h) {
 
-	bc.clearRect(0, 0, w, h);
+	//bc.clearRect(0, 0, w, h);
 	// First, draw it into the backing canvas
 	bc.drawImage(v, 0, 0, w, h);
 	
@@ -84,6 +86,7 @@ function draw(back, v, bc, w, h) {
 		var deltaImage = compare(previousFrame, currentFrame, w, h);
 		
 		if (deltaImage) {
+			
 			previousFrame = currentFrame.slice(0);
 			var deltaWidth = deltaImage.max_x-deltaImage.min_x;
 			var deltaHeight = deltaImage.max_y-deltaImage.min_y;
@@ -94,21 +97,11 @@ function draw(back, v, bc, w, h) {
 			outputBoxcontext.rect(deltaImage.min_x,deltaImage.min_y,deltaWidth,deltaHeight);
 			outputBoxcontext.stroke(); 
 			outputBoxcontext.closePath();
-			detectedChangeInterval = setTimeout(function() {
-				previousFrame = currentFrame.slice(0);
-				jQuery(".cameraLoading > div").stop().css('width','0%');
-				
-				outputBoxcontext.beginPath(); 
-				outputBoxcontext.strokeStyle="red";
-				outputBoxcontext.rect(deltaImage.min_x,deltaImage.min_y,deltaImage.max_x-deltaImage.min_x,deltaImage.max_y-deltaImage.min_y);
-				outputBoxcontext.stroke(); 
-				outputBoxcontext.closePath();
-				
-				// send deltaImage to server
-				socket.emit('image', {
-					'image' : back.toDataURL()
-				});
-			}, HOLDOUTTIME);
+			
+
+			//jQuery(".cameraLoading > div").stop().css('width','0%');
+			//clearTimeout(detectedChangeInterval);
+			
 			if (!isWorking) {
 				
 				isWorking = true;
@@ -171,17 +164,19 @@ function compare(data1, data2, w, h) {
 		var x = (i / 4) % w;
 		var y = Math.floor((i / 4) / w);
 	
-		var distance = colorDistance({
+		var c1 = {
 			'getRed' : data1Arr[i],
 			'getGreen' : data1Arr[i+1],
 			'getBlue' : data1Arr[i+2],
 			'getAlpha' : data1Arr[i+3]
-		},{
+		};
+		var c2 = {
 			'getRed' : data2Arr[i],
 			'getGreen' : data2Arr[i+1],
 			'getBlue' : data2Arr[i+2],
 			'getAlpha' : data2Arr[i+3]
-		});
+		};
+		var distance = colorDistance(c1, c2);
 		
 		if (distance > TOLERANCE) {
 			min_x = min_x > x ? x : min_x;
