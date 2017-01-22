@@ -81,10 +81,12 @@ io.on('connection', function(socket){
 				Cclient.models.predict(Clarifai.FOOD_MODEL, {'base64':base64Data}).then(
 					function(response) {
 						var name = response.outputs[0].data.concepts[0].name;
-
-						// socket.emit('image tag', name);
-						// console.warn(JSON.stringify(response));
-						// console.warn(response);
+                        for (var i=0; i<db.data.length; i += 1){
+                            if (name == db.data[i].name){
+                                db.data[i].quantity += 1;
+                                console.log(db.data[i].quantity);
+                            }
+                        }
 						console.warn(name);
 					},
 					function(err) {
