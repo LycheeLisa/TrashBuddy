@@ -5,16 +5,18 @@ var isWorking = false;
 var detectedChangeInterval = -1;
 var socket = io();
 
-
 var TOLERANCE = 200;
 var FPS = 500;
 var HOLDOUTTIME = 6000;
 
+
+
+
 var video = document.querySelector("#videoElement");
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
 
-video.onloadedmetadata = function () {
-};
+video.onloadedmetadata = function() {
+}
 
 if (navigator.getUserMedia) {
     if (MediaStreamTrack.getSources) {
@@ -26,7 +28,7 @@ if (navigator.getUserMedia) {
 
 function gotSources(sourceInfos) {
     var audioSource = sourceInfos[0].id;
-    var videoSource = sourceInfos[3].id;
+    var videoSource = sourceInfos[4].id;
 
     startCamera({
         optional: [{sourceId: videoSource}]
@@ -44,7 +46,7 @@ function startCamera(video) {
 function handleVideo(stream) {
     video.src = window.URL.createObjectURL(stream);
 
-    setInterval(function () {
+    setInterval(function() {
         show_video();
     }, FPS);
 }
@@ -65,11 +67,11 @@ function show_video() {
 
 function draw(back, v, bc, w, h) {
 
-    bc.clearRect(0, 0, w, h);
+    //bc.clearRect(0, 0, w, h);
     // First, draw it into the backing canvas
     bc.drawImage(v, 0, 0, w, h);
 
-    var imgData = bc.getImageData(0, 0, w, h).data;
+    var imgData = bc.getImageData(0,0,w,h).data;
 
     // enumerate all pixels
     // each pixel's r,g,b,a datum are stored in separate sequential array elements
@@ -84,52 +86,42 @@ function draw(back, v, bc, w, h) {
         var deltaImage = compare(previousFrame, currentFrame, w, h);
 
         if (deltaImage) {
+
             previousFrame = currentFrame.slice(0);
-            var deltaWidth = deltaImage.max_x - deltaImage.min_x;
-            var deltaHeight = deltaImage.max_y - deltaImage.min_y;
+            var deltaWidth = deltaImage.max_x-deltaImage.min_x;
+            var deltaHeight = deltaImage.max_y-deltaImage.min_y;
 
             outputBoxcontext.clearRect(0, 0, w, h);
             outputBoxcontext.beginPath();
-            outputBoxcontext.strokeStyle = "red";
-            outputBoxcontext.rect(deltaImage.min_x, deltaImage.min_y, deltaWidth, deltaHeight);
+            outputBoxcontext.strokeStyle="red";
+            outputBoxcontext.rect(deltaImage.min_x,deltaImage.min_y,deltaWidth,deltaHeight);
             outputBoxcontext.stroke();
             outputBoxcontext.closePath();
-            detectedChangeInterval = setTimeout(function () {
-                previousFrame = currentFrame.slice(0);
-                jQuery(".cameraLoading > div").stop().css('width', '0%');
 
-                outputBoxcontext.beginPath();
-                outputBoxcontext.strokeStyle = "red";
-                outputBoxcontext.rect(deltaImage.min_x, deltaImage.min_y, deltaImage.max_x - deltaImage.min_x, deltaImage.max_y - deltaImage.min_y);
-                outputBoxcontext.stroke();
-                outputBoxcontext.closePath();
 
-                // send deltaImage to server
-                socket.emit('image', {
-                    'image': back.toDataURL()
-                });
-            }, HOLDOUTTIME);
+            //jQuery(".cameraLoading > div").stop().css('width','0%');
+            //clearTimeout(detectedChangeInterval);
+
             if (!isWorking) {
 
                 isWorking = true;
-                firstFrame = firstFrame == null ? previousFrame.slice(0) : null;
 
-                jQuery(".cameraLoading > div").stop().css('width', '0%').animate({width: '100%'}, HOLDOUTTIME);
-                detectedChangeInterval = setTimeout(function () {
+                jQuery(".cameraLoading > div").stop().css('width','0%').animate({width: '100%'}, HOLDOUTTIME);
+                detectedChangeInterval = setTimeout(function() {
                     isWorking = false;
-                    jQuery(".cameraLoading > div").stop().css('width', '0%');
-                    var deltaImage = compare(firstFrame, currentFrame, w, h);
+                    jQuery(".cameraLoading > div").stop().css('width','0%');
 
-                    firstFrame = null;
+                    var deltaImage = compare(firstFrame || previousFrame, currentFrame, w, h);
+                    firstFrame = currentFrame.slice(0);
 
                     if (deltaImage != null) {
-                        var deltaWidth = deltaImage.max_x - deltaImage.min_x;
-                        var deltaHeight = deltaImage.max_y - deltaImage.min_y;
+                        var deltaWidth = deltaImage.max_x-deltaImage.min_x;
+                        var deltaHeight = deltaImage.max_y-deltaImage.min_y;
 
                         outputBoxcontext.clearRect(0, 0, w, h);
                         outputBoxcontext.beginPath();
-                        outputBoxcontext.strokeStyle = "red";
-                        outputBoxcontext.rect(deltaImage.min_x, deltaImage.min_y, deltaWidth, deltaHeight);
+                        outputBoxcontext.strokeStyle="red";
+                        outputBoxcontext.rect(deltaImage.min_x,deltaImage.min_y,deltaWidth,deltaHeight);
                         outputBoxcontext.stroke();
                         outputBoxcontext.closePath();
 
@@ -142,7 +134,7 @@ function draw(back, v, bc, w, h) {
 
                         // send deltaImage to server
                         socket.emit('image', {
-                            'image': canvas.toDataURL()
+                            'image' : canvas.toDataURL()
                         });
                     } else {
 
@@ -166,22 +158,24 @@ function compare(data1, data2, w, h) {
     var min_y = h;
     var max_y = 0;
 
-    for (var i = 0; i < data1Arr.length; i += 4) {
+    for(var i=0; i<data1Arr.length; i+=4) {
 
         var x = (i / 4) % w;
         var y = Math.floor((i / 4) / w);
 
-        var distance = colorDistance({
-            'getRed': data1Arr[i],
-            'getGreen': data1Arr[i + 1],
-            'getBlue': data1Arr[i + 2],
-            'getAlpha': data1Arr[i + 3]
-        }, {
-            'getRed': data2Arr[i],
-            'getGreen': data2Arr[i + 1],
-            'getBlue': data2Arr[i + 2],
-            'getAlpha': data2Arr[i + 3]
-        });
+        var c1 = {
+            'getRed' : data1Arr[i],
+            'getGreen' : data1Arr[i+1],
+            'getBlue' : data1Arr[i+2],
+            'getAlpha' : data1Arr[i+3]
+        };
+        var c2 = {
+            'getRed' : data2Arr[i],
+            'getGreen' : data2Arr[i+1],
+            'getBlue' : data2Arr[i+2],
+            'getAlpha' : data2Arr[i+3]
+        };
+        var distance = colorDistance(c1, c2);
 
         if (distance > TOLERANCE) {
             min_x = min_x > x ? x : min_x;
@@ -198,33 +192,34 @@ function compare(data1, data2, w, h) {
     //var ctx = c.getContext('2d');
     //ctx.putImageData(data2, 0, 0);
 
-    if (min_x == w && max_x == 0 && min_y == h && max_y == 0) {
+    if (min_x==w && max_x==0 && min_y==h && max_y==0) {
         return null;
     }
 
     return {
-        'min_x': min_x,
-        'max_x': max_x,
-        'min_y': min_y,
-        'max_y': max_y
+        'min_x':min_x,
+        'max_x':max_x,
+        'min_y':min_y,
+        'max_y':max_y
     };
 }
 
 
 function colorDistance(color1, color2) {
-    var rmean = ( color1.getRed + color2.getRed ) / 2;
+    var rmean = ( color1.getRed + color2.getRed )/2;
     var r = color1.getRed - color2.getRed;
     var g = color1.getGreen - color2.getGreen;
     var b = color1.getBlue - color2.getBlue;
-    var weightR = 2 + rmean / 256;
+    var weightR = 2 + rmean/256;
     var weightG = 4.0;
-    var weightB = 2 + (255 - rmean) / 256;
-    return Math.sqrt(weightR * r * r + weightG * g * g + weightB * b * b);
+    var weightB = 2 + (255-rmean)/256;
+    return Math.sqrt(weightR*r*r + weightG*g*g + weightB*b*b);
 }
 
 
 var outputBox = document.getElementById('outputBox');
 var outputBoxcontext = outputBox.getContext('2d');
+
 
 
 /*
@@ -252,11 +247,11 @@ var outputBoxcontext = outputBox.getContext('2d');
  var context = canvas2.getContext('2d');
 
  if (deltaImage) {
- context.beginPath(); 
+ context.beginPath();
  context.strokeStyle="red";
  //context.rect(0,0,100,100);
  context.rect(deltaImage.min_x,deltaImage.min_y,deltaImage.max_x-deltaImage.min_x,deltaImage.max_y-deltaImage.min_y);
- context.stroke(); 
+ context.stroke();
  context.closePath();
  }
  });
