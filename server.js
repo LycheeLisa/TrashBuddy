@@ -69,6 +69,7 @@ io.on('connection', function(socket){
 	
 	socket.on('image', function(dataX) {
 		var image = dataX.image;
+        var timeCategory = dataX.timeCategory;
 		var base64Data = image.replace(/^data:image\/png;base64,/, "");
 		var filename = "out_" + uuid.v4() + ".png";
         var destinationFile = "captures/" + filename;
@@ -78,10 +79,14 @@ io.on('connection', function(socket){
 			} else {
 				console.log("Saved file " + filename);
                 //fs.readFile(destinationFile, function(err, data) {
-                    Cclient.models.predict(Clarifai.GENERAL_MODEL, {'base64':base64Data}).then(
+                    Cclient.models.predict(Clarifai.FOOD_MODEL, {'base64':base64Data}).then(
 						function(response) {
-						  // do something with response
+                            var name = response.outputs[0].data.concepts[0].name;
+
+                            socket.emit('image tag', name);
 						  console.log(JSON.stringify(response));
+                           //  console.log(response);
+                            console.log(name);
 						},
 						function(err) {
 						  // there was an error
