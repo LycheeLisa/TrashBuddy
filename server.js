@@ -65,7 +65,7 @@ httpsServer.listen(process.env.PORT || 3000, function () {
 
 var io = require('socket.io').listen(httpsServer);
 io.on('connection', function(socket){
-	console.log("User connected...");
+	console.warn("User connected...");
 	
 	socket.on('image', function(dataX) {
 		var image = dataX.image;
@@ -75,30 +75,28 @@ io.on('connection', function(socket){
         var destinationFile = "captures/" + filename;
 		fs.writeFile(destinationFile, base64Data, 'base64', function(err) {
 			if (err) {
-				console.log(err);
+				console.warn(err);
 			} else {
-				console.log("Saved file " + filename);
-                //fs.readFile(destinationFile, function(err, data) {
-                    Cclient.models.predict(Clarifai.FOOD_MODEL, {'base64':base64Data}).then(
-						function(response) {
-                            var name = response.outputs[0].data.concepts[0].name;
+				console.warn("Saved file " + filename);
+				Cclient.models.predict(Clarifai.FOOD_MODEL, {'base64':base64Data}).then(
+					function(response) {
+						var name = response.outputs[0].data.concepts[0].name;
 
-                            socket.emit('image tag', name);
-						  console.log(JSON.stringify(response));
-                           //  console.log(response);
-                            console.log(name);
-						},
-						function(err) {
-						  // there was an error
-						  console.log(err);
-						}
-					);
-                //});
+						// socket.emit('image tag', name);
+						// console.warn(JSON.stringify(response));
+						// console.warn(response);
+						console.warn(name);
+					},
+					function(err) {
+					  // there was an error
+					  console.warn(err);
+					}
+				);
 			}
 		});
 	});
 	
 	socket.on('disconnect', function() {
-		console.log("User left...");
+		console.warn("User left...");
 	});
 });
