@@ -17,3 +17,7 @@ canvas#myChart{
 .bottompad{
     padding-bottom: 30px;
 }
+.mostQuantity{
+    font-size: 20px;
+    font-weight: bold;
+}

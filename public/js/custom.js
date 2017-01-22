@@ -34,7 +34,12 @@ function turnIntoGraph(result) {
 }
 
 function turnIntoGraphView(result) {
-            
+            for (var i=0; i < result.data.length; i+=1){
+                if (result.data[i].name == "banana"){
+                    $(".mostQuantity").text(result.data[i].quantity);
+                    break;
+                }
+            }
             var items = result;
             var grain = 0;
             var vegetable = 0;
