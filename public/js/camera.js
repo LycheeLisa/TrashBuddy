@@ -1,20 +1,20 @@
 var previousFrame = null;
 var currentFrame = null;
+var firstFrame = null;
+var isWorking = false;
 var detectedChangeInterval = -1;
 var socket = io();
 
-var TOLERANCE = 700;
+
+var TOLERANCE = 200;
 var FPS = 500;
-var HOLDOUTTIME = 2000;
+var HOLDOUTTIME = 6000;
 
-
-				
-				
 var video = document.querySelector("#videoElement");
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
 
 video.onloadedmetadata = function() {
-}
+};
 
 if (navigator.getUserMedia) {   
 	if (MediaStreamTrack.getSources) {
@@ -26,7 +26,7 @@ if (navigator.getUserMedia) {
 
 function gotSources(sourceInfos) {
 	var audioSource = sourceInfos[0].id;
-	var videoSource = sourceInfos[3].id;
+	var videoSource = sourceInfos[4].id;
 	
 	startCamera({
 	  optional: [{sourceId: videoSource}]
@@ -74,20 +74,26 @@ function draw(back, v, bc, w, h) {
 	// enumerate all pixels
 	// each pixel's r,g,b,a datum are stored in separate sequential array elements
 
+	//if (isWorking) return;
+	
 	if (previousFrame) {
 		
 		currentFrame = imgData;
 		
+		
 		var deltaImage = compare(previousFrame, currentFrame, w, h);
 		
-		outputBoxcontext.clearRect(0, 0, w, h);
-		
 		if (deltaImage) {
-			console.log(deltaImage);
-			
-			clearTimeout(detectedChangeInterval);
-			jQuery(".cameraLoading > div").stop().css('width','0%').animate({width: '100%'}, HOLDOUTTIME);
-			
+			previousFrame = currentFrame.slice(0);
+			var deltaWidth = deltaImage.max_x-deltaImage.min_x;
+			var deltaHeight = deltaImage.max_y-deltaImage.min_y;
+					
+			outputBoxcontext.clearRect(0, 0, w, h);
+			outputBoxcontext.beginPath(); 
+			outputBoxcontext.strokeStyle="red";
+			outputBoxcontext.rect(deltaImage.min_x,deltaImage.min_y,deltaWidth,deltaHeight);
+			outputBoxcontext.stroke(); 
+			outputBoxcontext.closePath();
 			detectedChangeInterval = setTimeout(function() {
 				previousFrame = currentFrame.slice(0);
 				jQuery(".cameraLoading > div").stop().css('width','0%');
@@ -103,7 +109,48 @@ function draw(back, v, bc, w, h) {
 					'image' : back.toDataURL()
 				});
 			}, HOLDOUTTIME);
+			if (!isWorking) {
+				
+				isWorking = true;
+				firstFrame = firstFrame==null ? previousFrame.slice(0) : null;
+				
+				jQuery(".cameraLoading > div").stop().css('width','0%').animate({width: '100%'}, HOLDOUTTIME);
+				detectedChangeInterval = setTimeout(function() {
+					isWorking = false;
+					jQuery(".cameraLoading > div").stop().css('width','0%');
+					var deltaImage = compare(firstFrame, currentFrame, w, h);
+
+					firstFrame = null;
+					
+					if (deltaImage != null) {
+						var deltaWidth = deltaImage.max_x-deltaImage.min_x;
+						var deltaHeight = deltaImage.max_y-deltaImage.min_y;
+		
+						outputBoxcontext.clearRect(0, 0, w, h);
+						outputBoxcontext.beginPath(); 
+						outputBoxcontext.strokeStyle="red";
+						outputBoxcontext.rect(deltaImage.min_x,deltaImage.min_y,deltaWidth,deltaHeight);
+						outputBoxcontext.stroke(); 
+						outputBoxcontext.closePath();
+						
+						var subImgData = bc.getImageData(deltaImage.min_x, deltaImage.min_y, deltaWidth, deltaHeight);
+						var canvas = document.createElement('canvas');
+						canvas.width = deltaWidth;
+						canvas.height = deltaHeight;
+						var ctx = canvas.getContext('2d');
+						ctx.putImageData(subImgData, 0, 0);
+						
+						// send deltaImage to server
+						socket.emit('image', {
+							'image' : canvas.toDataURL()
+						});
+					} else {
+						
+					}
+				}, HOLDOUTTIME);
+			}
 		}
+		
 	} else {
 		previousFrame = imgData;
 	}
