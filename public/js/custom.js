@@ -1,5 +1,40 @@
+var socket = io();
+socket.emit('enduser', {
+    'enduser' : true
+});
+socket.on('databaseUpdate', function(){
+    var tabName = $("#timeTabs .active").text();
+    if (tabName == "Daily"){
+        $.ajax({
+            url: "/api/daily", success: function (result) {
+                turnIntoGraph(result)
+            }
+        });
+    }
+    else if (tabName == "Weekly"){
+        $.ajax({
+            url: "/api/weekly", success: function (result) {
+                turnIntoGraph(result)
+            }
+        });
+    }
+    else if (tabName == "Monthly"){
+        $.ajax({
+            url: "/api/monthly", success: function (result) {
+                turnIntoGraph(result)
+            }
+        });
+    }
+   // turnIntoGraphView(db); 
+});
+
 function turnIntoGraph(result) {
-            result = JSON.parse(result);
+    result = JSON.parse(result);
+    turnIntoGraphView(result);
+}
+
+function turnIntoGraphView(result) {
+            
             var items = result;
             var grain = 0;
             var vegetable = 0;
@@ -8,24 +43,24 @@ function turnIntoGraph(result) {
             var dairy = 0;
             var other = 0;
             for (var i=0; i< result.data.length; i+=1) {
-                console.log(result.data[i].category);
                 if (result.data[i].category == 'grains') {
-                    grain += 1;
+                    console.log(result.data[i]);
+                    grain += result.data[i].quantity;
                 }
                 else if (result.data[i].category == 'vegetable') {
-                    vegetable += 1;
+                    vegetable += result.data[i].quantity;
                 }
                 else if (result.data[i].category == 'fruit') {
-                    fruit += 1;
+                    fruit += result.data[i].quantity;
                 }
                 else if (result.data[i].category == 'dairy') {
-                    dairy += 1;
+                    dairy += result.data[i].quantity;
                 }
                 else if (result.data[i].category == 'protein') {
-                    protein += 1;
+                    protein += result.data[i].quantity;
                 }
                 else if (result.data[i].category == 'other') {
-                    other += 1;
+                    other += result.data[i].quantity;
                 }
             }
             if (window.pieChart != null){

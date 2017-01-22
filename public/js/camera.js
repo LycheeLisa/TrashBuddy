@@ -9,14 +9,11 @@ var TOLERANCE = 200;
 var FPS = 500;
 var HOLDOUTTIME = 6000;
 
-
-
-
 var video = document.querySelector("#videoElement");
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
 
 video.onloadedmetadata = function() {
-}
+};
 
 if (navigator.getUserMedia) {
     if (MediaStreamTrack.getSources) {
@@ -28,7 +25,7 @@ if (navigator.getUserMedia) {
 
 function gotSources(sourceInfos) {
     var audioSource = sourceInfos[0].id;
-    var videoSource = sourceInfos[4].id;
+    var videoSource = sourceInfos[3].id;
 
     startCamera({
         optional: [{sourceId: videoSource}]

@@ -8,6 +8,8 @@ var fs = require("fs");
 var https = require("https");
 var db = require('./db.json');
 var uuid = require('uuid');
+var cameraSockets = [];
+var endUserSockets = [];
 
 var Cclient = new Clarifai.App(
     'vHoj4XdPkGsG1ThB_pvn9QrbldygqdJLGiK2d3Xq',
@@ -84,10 +86,14 @@ io.on('connection', function(socket){
                         for (var i=0; i<db.data.length; i += 1){
                             if (name == db.data[i].name){
                                 db.data[i].quantity += 1;
+                                db.data[i].time = 0;
                                 console.log(db.data[i].quantity);
                             }
                         }
 						console.warn(name);
+                        for (var i=0; i<endUserSockets.length ; i+=1){
+                            endUserSockets[i].emit('databaseUpdate', true);   
+                        }
 					},
 					function(err) {
 					  // there was an error
@@ -97,6 +103,14 @@ io.on('connection', function(socket){
 			}
 		});
 	});
+    socket.on('enduser', function(endUser) {
+       if (endUser.enduser){
+           endUserSockets.push(socket);
+       }
+        else {
+           cameraSockets.push(socket);
+       }
+    });
 	
 	socket.on('disconnect', function() {
 		console.warn("User left...");
