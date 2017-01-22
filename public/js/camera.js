@@ -1,5 +1,6 @@
 var previousFrame = null;
 var currentFrame = null;
+var firstFrame = null;
 var detectedChangeInterval = -1;
 var socket = io();
 
@@ -80,30 +81,45 @@ function draw(back, v, bc, w, h) {
 		
 		var deltaImage = compare(previousFrame, currentFrame, w, h);
 		
-		outputBoxcontext.clearRect(0, 0, w, h);
-		
 		if (deltaImage) {
-			//console.log(deltaImage);
-			previousFrame = currentFrame.slice(0);
+			firstFrame = firstFrame==null ? previousFrame.slice(0) : null;
 			
+			jQuery(".cameraLoading > div").stop().css('width','0%');
 			clearTimeout(detectedChangeInterval);
-			jQuery(".cameraLoading > div").stop().css('width','0%').animate({width: '100%'}, HOLDOUTTIME);
 			
+			jQuery(".cameraLoading > div").stop().css('width','0%').animate({width: '100%'}, HOLDOUTTIME);
 			detectedChangeInterval = setTimeout(function() {
 				
 				jQuery(".cameraLoading > div").stop().css('width','0%');
+				var deltaImage = compare(firstFrame, currentFrame, w, h);
+				firstFrame = null;
 				
-				outputBoxcontext.beginPath(); 
-				outputBoxcontext.strokeStyle="red";
-				outputBoxcontext.rect(deltaImage.min_x,deltaImage.min_y,deltaImage.max_x-deltaImage.min_x,deltaImage.max_y-deltaImage.min_y);
-				outputBoxcontext.stroke(); 
-				outputBoxcontext.closePath();
-				
-				// send deltaImage to server
-				//socket.emit('image', {
-				//	'image' : back.toDataURL()
-				//});
+				if (deltaImage != null) {
+					var deltaWidth = deltaImage.max_x-deltaImage.min_x;
+					var deltaHeight = deltaImage.max_y-deltaImage.min_y;
+					
+					outputBoxcontext.clearRect(0, 0, w, h);
+					outputBoxcontext.beginPath(); 
+					outputBoxcontext.strokeStyle="red";
+					outputBoxcontext.rect(deltaImage.min_x,deltaImage.min_y,deltaWidth,deltaHeight);
+					outputBoxcontext.stroke(); 
+					outputBoxcontext.closePath();
+					
+					var subImgData = bc.getImageData(deltaImage.min_x, deltaImage.min_y, deltaWidth, deltaHeight);
+					var canvas = document.createElement('canvas');
+					canvas.width = deltaWidth;
+					canvas.height = deltaHeight;
+					var ctx = canvas.getContext('2d');
+					ctx.putImageData(subImgData, 0, 0);
+
+					// send deltaImage to server
+					socket.emit('image', {
+						'image' : canvas.toDataURL()
+					});
+				}
 			}, HOLDOUTTIME);
+			
+			previousFrame = currentFrame.slice(0);
 		}
 	} else {
 		previousFrame = imgData;
